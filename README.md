@@ -63,6 +63,7 @@ This runs `chezmoi apply` inside a throwaway Linux container and drops you into 
 
 **Dev tools**
 
+- [Task](https://taskfile.dev) — runs setup tasks, e.g. `task -d setup/macos setup` or `task -d setup/shared setup`
 - [VS Code](https://code.visualstudio.com)
 - [Docker](https://www.docker.com)
 - [Postman](https://www.postman.com)

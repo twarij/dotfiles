@@ -1,20 +1,22 @@
-# setup hash: {{ $files := list }}{{ $files = concat $files (glob (joinPath .chezmoi.sourceDir "../setup/windows/*.ps1")) }}{{ $files = concat $files (glob (joinPath .chezmoi.sourceDir "../setup/shared/*.ps1")) }}{{ $content := "" }}{{ range $files }}{{ $content = print $content (include .) }}{{ end }}{{ $content | sha256sum }}
+# setup hash: {{ $files := list }}{{ $files = concat $files (glob (joinPath .chezmoi.sourceDir "../setup/windows/*.yml")) }}{{ $files = concat $files (glob (joinPath .chezmoi.sourceDir "../setup/windows/*.ps1")) }}{{ $files = concat $files (glob (joinPath .chezmoi.sourceDir "../setup/shared/*.yml")) }}{{ $content := "" }}{{ range $files }}{{ $content = print $content (include .) }}{{ end }}{{ $content | sha256sum }}
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 Set-Location "{{ .chezmoi.sourceDir }}\..\setup"
 
-function Run-SetupDir($dir) {
-  Get-ChildItem -Path $dir -Filter "*.ps1" -ErrorAction SilentlyContinue | Sort-Object Name | ForEach-Object {
-    Write-Host "▶ $($_.FullName)"
-    & $_.FullName
-  }
+function Update-Path {
+  # winget writes new install dirs to the persisted PATH but not to this process's env — reload it.
+  $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
 }
 
-Run-SetupDir "windows"
+# Bootstrap Task (winget ships with Windows, so it needs no bootstrap of its own).
+if (-not (Get-Command task -ErrorAction SilentlyContinue)) {
+  Write-Host "[*] installing task via winget."
+  winget install --id Task.Task -e --source winget --accept-package-agreements --accept-source-agreements
+  Update-Path
+}
 
-# winget writes new install dirs (e.g. WinGet Links, fnm, uv) to the persisted PATH
-# but not to this process's env — reload it so shared scripts can find those binaries.
-$env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
-
-Run-SetupDir "shared"
+# Hand the actual setup off to Task.
+task -d windows setup
+Update-Path
+task -d shared setup

@@ -1,0 +1,68 @@
+version: '3'
+
+tasks:
+  install-homebrew:
+    desc: Install Homebrew if missing
+    set: [e]
+    cmds:
+      - |
+        if ! command -v brew &>/dev/null; then
+          echo "[*] installing homebrew."
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo "[ok] homebrew installed!"
+        else
+          echo "[i] homebrew is installed."
+        fi
+
+  install-packages:
+    desc: Install packages from Brewfile
+    dir: '{{.TASKFILE_DIR}}'
+    set: [e]
+    cmds:
+      - |
+        echo "[*] installing packages from Brewfile."
+        brew bundle install
+        echo "[ok] packages installed!"
+
+        # Remove temporary chezmoi binary installed by one-liner (now replaced by brew)
+        if [ -f "$HOME/.local/bin/chezmoi" ]; then
+          rm "$HOME/.local/bin/chezmoi"
+          echo "[ok] removed temporary chezmoi from ~/.local/bin/"
+        fi
+
+  macos-defaults:
+    desc: Apply macOS system defaults
+    set: [e]
+    cmds:
+      - |
+        echo "[*] applying macOS defaults..."
+
+        # Trackpad: tap to click (built-in and Bluetooth)
+        defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+        defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+        defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+        # Finder: show all file extensions
+        defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+        # Finder: show hidden files
+        defaults write com.apple.finder AppleShowAllFiles -bool true
+
+        # Finder: show path bar
+        defaults write com.apple.finder ShowPathbar -bool true
+
+        # Disable .DS_Store on network/USB
+        defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+        defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+        # Restart affected apps
+        killall Finder 2>/dev/null || true
+
+        echo "[ok] macOS defaults applied!"
+
+  setup:
+    desc: Run all macOS setup tasks in order
+    cmds:
+      - task: install-homebrew
+      - task: install-packages
+      - task: macos-defaults

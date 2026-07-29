@@ -8,6 +8,9 @@ brew "fnm"
 brew "uv"
 brew "chezmoi"
 
+# Task runner (bootstrapped by the setup orchestrator; kept here so brew upgrade owns it)
+brew "go-task"
+
 # Git
 brew "git"
 brew "gh"

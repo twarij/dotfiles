@@ -1,0 +1,78 @@
+version: "3"
+
+tasks:
+  install-packages:
+    desc: Install packages via winget
+    set: [e]
+    cmds:
+      - |
+        failed=""
+
+        install_pkg() {
+          id="$1"
+          # skip if already installed so onchange re-runs don't report false failures
+          if winget list --id "$id" -e --source winget >/dev/null 2>&1; then
+            echo "[i] $id already installed, skipping."
+            return
+          fi
+          if ! winget install --id "$id" -e --source winget --accept-package-agreements --accept-source-agreements; then
+            echo "[!!] failed to install $id"
+            failed="$failed $id"
+          fi
+        }
+
+        echo "[*] installing WSL."
+        if wsl --version >/dev/null 2>&1; then
+          echo "[i] WSL already installed, skipping."
+        # Docker Desktop's WSL 2 backend needs the WSL kernel, not a distro
+        elif wsl --install --no-distribution; then
+          echo "[i] WSL installed - reboot before starting Docker Desktop."
+        else
+          echo "[!!] failed to install WSL - is virtualization enabled in BIOS/UEFI?"
+          failed="$failed WSL"
+        fi
+
+        echo "[*] installing packages via winget."
+
+        # Shell
+        install_pkg "Microsoft.PowerShell"
+
+        # Version managers
+        install_pkg "Schniz.fnm"
+        install_pkg "astral-sh.uv"
+
+        # Task runner (bootstrapped by the setup orchestrator; kept here so winget upgrade owns it)
+        install_pkg "Task.Task"
+
+        # Git
+        install_pkg "Git.Git"
+        install_pkg "GitHub.cli"
+
+        # Dev tools
+        install_pkg "Microsoft.VisualStudioCode"
+        install_pkg "Docker.DockerDesktop"
+        install_pkg "Postman.Postman"
+        install_pkg "Fork.Fork" # Git GUI
+        install_pkg "TablePlus.TablePlus"
+        install_pkg "DBeaver.DBeaver.Community"
+
+        # Productivity
+        install_pkg "Google.Chrome"
+        install_pkg "Discord.Discord"
+
+        if [ -n "$failed" ]; then
+          echo "[!!] failed to install:$failed"
+          exit 1
+        fi
+        echo "[ok] packages installed!"
+
+  windows-defaults:
+    desc: Apply Windows defaults
+    cmds:
+      - pwsh -NoProfile -ExecutionPolicy Bypass -File ./windows-defaults.ps1
+
+  setup:
+    desc: Run all Windows setup tasks in order
+    cmds:
+      - task: install-packages
+      - task: windows-defaults

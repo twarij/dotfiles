@@ -22,10 +22,10 @@ Chezmoi source root is `configs/` (set via `.chezmoiroot`).
 
 ### Setup and Bootstrap
 
-- Scripts in `setup/` directory handle installation and configuration
-- `setup/macos/` contains macOS-specific setup
-- `setup/windows/` contains Windows-specific setup
-- `setup/shared/` contains cross-platform setup scripts
+- `setup/{shared,macos,windows}/` each have their own `Taskfile.yml`, run via [Task](https://taskfile.dev) (e.g. `task -d setup/macos setup`) — replaced the old numbered `.sh`/`.ps1` scripts
+- `setup/shared/Taskfile.yml` — cross-platform tasks (node, python, third-party skills). One file runs on both OSes: Task's default shell interpreter (`mvdan.cc/sh`) executes the same POSIX-style syntax on macOS and Windows
+- `setup/macos/Taskfile.yml` — macOS-only tasks (Homebrew, `Brewfile`, `defaults write`), fully inlined POSIX shell
+- `setup/windows/Taskfile.yml` — Windows-only tasks. `install-packages` is inlined POSIX shell (winget calls translate cleanly); `windows-defaults` shells out to `windows-defaults.ps1` via `pwsh -File`, since that logic (JSON regex edits, `Get-ChildItem` globbing) needs real PowerShell, not `mvdan.cc/sh`
 
 ## Chezmoi Conventions
 
@@ -48,5 +48,5 @@ When working with this repository:
 
 - This is a personal configuration repository - modifications should respect the owner's preferences
 - Setup scripts must install **stable releases only**. Do not use experimental/preview/beta/nightly flags or channels (e.g. `--preview`, `--preview-features`, `--pre`, `--nightly`, `--beta`) — they can break on tool upgrades. If a desired behavior is only available behind such a flag, prefer the stable alternative even if it's less convenient
-- Always keep macOS and Windows in sync: most platform pairs are the same filename, different extension (`.sh` ↔ `.ps1`). Editing one means editing its counterpart in the same commit — except `settings.json.tmpl`, which branches with `{{ if eq .chezmoi.os "windows" }}` instead of having a separate file
+- Always keep macOS and Windows in sync: most platform pairs in `configs/` are the same filename, different extension (`.sh` ↔ `.ps1`, e.g. `statusline-command.sh`/`.ps1`). Editing one means editing its counterpart in the same commit — except `settings.json.tmpl`, which branches with `{{ if eq .chezmoi.os "windows" }}` instead of having a separate file. `setup/` is the other exception: it has no cross-OS filename pairs at all — `setup/shared/Taskfile.yml` is one file that runs on both OSes via Task, while `setup/macos/Taskfile.yml` and `setup/windows/Taskfile.yml` are independent and don't need to mirror each other
 - `.chezmoiignore` platform blocks — if you add an entry for one OS, add the mirrored exclusion for the other
