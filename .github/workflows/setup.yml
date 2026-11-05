@@ -47,7 +47,8 @@ jobs:
         shell: bash
         run: |
           task -d setup/shared setup 2>&1 | tee second-run.log
-          if grep -E '\[\*\] installing (claude code|.*skills)' second-run.log; then
+          # anchored: Task also echoes each command's source, which contains these strings
+          if grep -E '^\[\*\] installing (claude code|.*skills)' second-run.log; then
             echo "::error::second run reinstalled something it should have skipped"
             exit 1
           fi
