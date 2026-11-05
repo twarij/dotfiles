@@ -21,8 +21,6 @@ winget install twpayne.chezmoi
 chezmoi init --apply jirawatsaesu/dotfiles
 ```
 
-After setup, replace `YOUR_FIGMA_TOKEN_HERE` in `~/.claude/settings.json` with your actual token.
-
 ## Testing in isolation
 
 A `Dockerfile` lets you test chezmoi's file deployment (templating, `.chezmoiignore` rules, naming conventions) without touching a real machine:

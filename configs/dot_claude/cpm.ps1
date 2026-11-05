@@ -16,8 +16,6 @@ function _cpm_provision_mcp {
     switch ($Name) {
         'coraline' {
             _cpm_ensure_mcp $Dir 'chrome-devtools' @('--', 'npx', 'chrome-devtools-mcp@latest')
-            _cpm_ensure_mcp $Dir 'clickup' @('--transport', 'http', 'https://mcp.clickup.com/mcp')
-            _cpm_ensure_mcp $Dir 'figma' @('--transport', 'http', 'https://mcp.figma.com/mcp')
         }
     }
 }

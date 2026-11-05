@@ -1,7 +1,4 @@
 {
-  "env": {
-    "FIGMA_TOKEN": "YOUR_FIGMA_TOKEN_HERE"
-  },
   "statusLine": {
     "type": "command",
     "command": "{{ if eq .chezmoi.os "windows" }}powershell -NoProfile -File ~/.claude/statusline-command.ps1{{ else }}bash ~/.claude/statusline-command.sh{{ end }}"

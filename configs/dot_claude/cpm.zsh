@@ -13,8 +13,6 @@ _cpm_provision_mcp() {
   case "$name" in
     coraline)
       _cpm_ensure_mcp "$dir" chrome-devtools -- npx chrome-devtools-mcp@latest
-      _cpm_ensure_mcp "$dir" clickup --transport http https://mcp.clickup.com/mcp
-      _cpm_ensure_mcp "$dir" figma --transport http https://mcp.figma.com/mcp
       ;;
   esac
 }

@@ -10,8 +10,6 @@ Personal preferences for Claude Code across all projects.
 
 ## MCP Servers
 
-- **ClickUp** — task and time tracking
-- **Figma** — design tool (token in `~/.claude/settings.json`)
 - **Chrome DevTools** — browser automation
 
 ## Custom Skills
@@ -20,10 +18,6 @@ Personal preferences for Claude Code across all projects.
 
 - `/eng:commit` — create a conventional commit; analyzes diff, detects logical splits, stages files if needed
 - `/eng:create-pr` — create a Bitbucket pull request from current branch
-- `/eng:create-ticket` — create a ClickUp task in the current AutoGov sprint
-- `/eng:daily-report` — daily meeting report from ClickUp time entries
-- `/eng:weekly-report` — weekly engineer-to-engineer report from ClickUp time entries
-- `/eng:monthly-report` — monthly C-level report from ClickUp time entries
 
 **Content Creator** (`/creator:*`)
 
