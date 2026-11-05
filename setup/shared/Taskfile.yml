@@ -25,7 +25,9 @@ tasks:
     set: [e]
     cmds:
       - |
-        if command -v claude >/dev/null 2>&1; then
+        # the native installer puts claude in ~/.local/bin, which may not be on PATH yet
+        claude_bin="${HOME:-$USERPROFILE}/.local/bin/claude"
+        if command -v claude >/dev/null 2>&1 || [ -e "$claude_bin" ] || [ -e "$claude_bin.exe" ]; then
           echo "[i] claude code already installed, skipping."
           exit 0
         fi

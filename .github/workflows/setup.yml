@@ -42,9 +42,15 @@ jobs:
 
       - name: Run shared setup
         run: task -d setup/shared setup
-      # second run must skip everything that's already installed
+      # second run must skip everything that has an "already installed" check
       - name: Run shared setup again
-        run: task -d setup/shared setup
+        shell: bash
+        run: |
+          task -d setup/shared setup 2>&1 | tee second-run.log
+          if grep -E '\[\*\] installing (claude code|.*skills)' second-run.log; then
+            echo "::error::second run reinstalled something it should have skipped"
+            exit 1
+          fi
 
       - name: Run Windows defaults
         if: runner.os == 'Windows'
