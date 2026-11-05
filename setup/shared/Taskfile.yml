@@ -51,7 +51,8 @@ tasks:
         npx() { fnm exec --using=lts-latest -- "$npx_bin" "$@"; }
 
         # npx skills add installs relative to cwd, and this task's cwd is setup/shared/, not $HOME
-        cd "$HOME"
+        # Windows sets USERPROFILE, not necessarily HOME
+        cd "${HOME:-$USERPROFILE}"
 
         # `skills add` always re-clones and overwrites, even if already installed, so check first
         installed_skills="$(npx --yes skills list -g 2>/dev/null)"
