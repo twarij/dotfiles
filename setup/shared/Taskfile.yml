@@ -8,9 +8,6 @@ tasks:
       - |
         echo "[*] installing node lts via fnm."
         fnm install --lts
-        # fnm install alone does not put node/npx on PATH for this process — activate explicitly
-        eval "$(fnm env --shell bash)"
-        fnm use --install-if-missing lts-latest
         echo "[ok] node installed!"
 
   install-python:
@@ -46,8 +43,12 @@ tasks:
     set: [e]
     cmds:
       - |
-        eval "$(fnm env --shell bash)"
-        fnm use --install-if-missing lts-latest
+        # `fnm exec` puts node on PATH itself; `eval "$(fnm env --shell bash)"` emits a
+        # `:`-joined Unix PATH that breaks under Task's shell on Windows (`;`-separated)
+        # On Windows npx is npx.cmd, and fnm's process spawn only auto-appends .exe
+        npx_bin=npx
+        if [ "$OS" = "Windows_NT" ]; then npx_bin=npx.cmd; fi
+        npx() { fnm exec --using=lts-latest -- "$npx_bin" "$@"; }
 
         # npx skills add installs relative to cwd, and this task's cwd is setup/shared/, not $HOME
         cd "$HOME"
@@ -57,7 +58,11 @@ tasks:
 
         skills_installed() {
           for skill in "$@"; do
-            grep -q "$skill" <<<"$installed_skills" || return 1
+            # shell builtin, not grep: Task's shell on Windows has no grep binary to call
+            case "$installed_skills" in
+              *"$skill"*) ;;
+              *) return 1 ;;
+            esac
           done
         }
 

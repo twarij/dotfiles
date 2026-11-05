@@ -69,7 +69,9 @@ tasks:
   windows-defaults:
     desc: Apply Windows defaults
     cmds:
-      - pwsh -NoProfile -ExecutionPolicy Bypass -File ./windows-defaults.ps1
+      # Windows PowerShell 5.1, not pwsh: pwsh is installed by install-packages in this same
+      # run, and winget's PATH update doesn't reach this process
+      - powershell -NoProfile -ExecutionPolicy Bypass -File ./windows-defaults.ps1
 
   setup:
     desc: Run all Windows setup tasks in order

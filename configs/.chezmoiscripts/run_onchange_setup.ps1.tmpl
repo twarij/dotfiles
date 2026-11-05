@@ -16,7 +16,10 @@ if (-not (Get-Command task -ErrorAction SilentlyContinue)) {
   Update-Path
 }
 
-# Hand the actual setup off to Task.
+# Hand the actual setup off to Task. $ErrorActionPreference doesn't stop on a native command's
+# exit code, so check it — otherwise chezmoi records the run as done and never retries.
 task -d windows setup
+if ($LASTEXITCODE) { exit $LASTEXITCODE }
 Update-Path
 task -d shared setup
+if ($LASTEXITCODE) { exit $LASTEXITCODE }
