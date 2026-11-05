@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Actions are pinned to exact versions (some publish no floating major tag), so let
+  # Dependabot open PRs to bump them.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
