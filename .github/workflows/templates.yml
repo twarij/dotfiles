@@ -1,0 +1,41 @@
+name: templates
+
+# Render every chezmoi template and apply into a throwaway home, so a broken template,
+# .chezmoiignore or .chezmoiremove fails here, not on a real machine.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "configs/**"
+      - ".github/workflows/templates.yml"
+  pull_request:
+    paths:
+      - "configs/**"
+      - ".github/workflows/templates.yml"
+  workflow_dispatch:
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install chezmoi
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+      - name: Apply into a throwaway home
+        run: |
+          dest="$RUNNER_TEMP/home"
+          mkdir -p "$dest"
+          chezmoi apply --source "$GITHUB_WORKSPACE" --destination "$dest" --exclude scripts --verbose
+          echo "DEST=$dest" >> "$GITHUB_ENV"
+
+      - name: Check rendered output
+        run: |
+          jq empty "$DEST/.claude/settings.json"
+          test -f "$DEST/.claude/CLAUDE.md"
+          test -f "$DEST/.gitconfig"
+          # platform-only files must be excluded by .chezmoiignore on Linux
+          for f in .zshrc .claude/cpm.zsh .claude/cpm.ps1 Documents; do
+            if [ -e "$DEST/$f" ]; then echo "unexpected: $f"; exit 1; fi
+          done

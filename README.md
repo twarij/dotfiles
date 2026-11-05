@@ -21,19 +21,6 @@ winget install twpayne.chezmoi
 chezmoi init --apply jirawatsaesu/dotfiles
 ```
 
-## Testing in isolation
-
-A `Dockerfile` lets you test chezmoi's file deployment (templating, `.chezmoiignore` rules, naming conventions) without touching a real machine:
-
-```bash
-docker build -t dotfiles-test .
-docker run --rm -it dotfiles-test
-```
-
-This runs `chezmoi apply` inside a throwaway Linux container and drops you into a shell to inspect the result (`cat ~/.gitconfig`, `ls ~/.claude`, etc).
-
-**Scope**: since this repo only targets macOS and Windows, Linux falls into neither platform branch — `.zshrc` and `statusline-command.sh`/`.ps1` won't deploy, and the bootstrap scripts under `setup/` won't run. This only verifies the platform-agnostic pieces (git config, Claude commands, `CLAUDE.md`, the rendered `settings.json`) actually template and land correctly — it's not a substitute for testing on a real macOS or Windows machine.
-
 ## Tools
 
 **Shell**

@@ -1,0 +1,51 @@
+name: setup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "setup/**"
+      - ".github/workflows/setup.yml"
+  pull_request:
+    paths:
+      - "setup/**"
+      - ".github/workflows/setup.yml"
+  workflow_dispatch:
+
+jobs:
+  shared:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Prerequisites the platform Taskfiles normally install (winget / Brewfile). Those
+      # Taskfiles can't run here: no winget on Windows Server, and WSL/Docker need a reboot.
+      - uses: arduino/setup-task@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Install fnm (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP "fnm"
+          Invoke-WebRequest https://github.com/Schniz/fnm/releases/latest/download/fnm-windows.zip -OutFile "$dir.zip"
+          Expand-Archive "$dir.zip" -DestinationPath $dir
+          $dir | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+      - name: Install fnm (macOS)
+        if: runner.os == 'macOS'
+        run: brew install fnm
+
+      - name: Run shared setup
+        run: task -d setup/shared setup
+      # second run must skip everything that's already installed
+      - name: Run shared setup again
+        run: task -d setup/shared setup
+
+      - name: Run Windows defaults
+        if: runner.os == 'Windows'
+        run: task -d setup/windows windows-defaults

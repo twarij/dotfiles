@@ -42,7 +42,7 @@ When working with this repository:
 1. Configuration changes should be made to the source files in this repository
 2. Use `chezmoi apply` to apply changes to the actual dotfiles
 3. Test changes in the appropriate environment before committing
-4. `Dockerfile` tests templating/`.chezmoiignore` only — not a substitute for a real macOS/Windows test
+4. CI (`.github/workflows/`): `templates` applies chezmoi on Linux to check templating/`.chezmoiignore`; `setup` runs `setup/shared` on Windows and macOS runners. Platform `install-packages` tasks and chezmoiscripts aren't covered — not a substitute for a real macOS/Windows test
 
 ## Important Notes
 
