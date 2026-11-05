@@ -32,7 +32,11 @@ tasks:
         echo "[*] installing claude code."
         # native installer: user-scope (no admin), auto-updates in the background
         if [ "$OS" = "Windows_NT" ]; then
-          powershell -NoProfile -Command "irm https://claude.ai/install.ps1 | iex"
+          # prefer pwsh: Windows PowerShell 5.1 launched from a pwsh session inherits pwsh's
+          # PSModulePath and can't autoload its own cmdlets (Get-FileHash, Select-Object, ...)
+          ps=powershell
+          if command -v pwsh >/dev/null 2>&1; then ps=pwsh; fi
+          "$ps" -NoProfile -Command "irm https://claude.ai/install.ps1 | iex"
         else
           curl -fsSL https://claude.ai/install.sh | bash
         fi
