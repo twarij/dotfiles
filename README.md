@@ -7,7 +7,7 @@ Personal dotfiles and dev environment setup, managed with [Chezmoi](https://www.
 **macOS**
 
 ```bash
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply jirawatsaesu/dotfiles
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply twarij/dotfiles
 ```
 
 **Windows**
@@ -18,7 +18,7 @@ Docker Desktop needs hardware virtualization. Before setup, enter BIOS/UEFI and 
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
 winget install twpayne.chezmoi
 # reopen the terminal so the new PATH from winget takes effect
-chezmoi init --apply jirawatsaesu/dotfiles
+chezmoi init --apply twarij/dotfiles
 ```
 
 ## Tools
